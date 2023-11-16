@@ -16,6 +16,11 @@ namespace ProductManagerAPI.Controllers
         }
 
         [HttpPost]
+        [Consumes("application/json")]
+        [Produces("application/json")]
+        [ProducesResponseType(StatusCodes.Status201Created)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+
         public ActionResult<ProductDto> CreateProduct(CreateProductRequest createProductRequest)
         {
             var product = new Product
@@ -44,7 +49,10 @@ namespace ProductManagerAPI.Controllers
             return Created("", productDto);
         }
 
-        [HttpGet("all")]
+        [HttpGet()]
+        [Produces("application/json")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
         public IEnumerable<ProductDto> GetProducts()
         {
             var products = context.Products.ToList();
@@ -62,7 +70,11 @@ namespace ProductManagerAPI.Controllers
             return productsDto;
         }
 
-        [HttpGet("search")]
+        [HttpGet("{name}")]
+        [Produces("application/json")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType (StatusCodes.Status404NotFound)]
+
         public IEnumerable<ProductDto> GetProductsBySearch([FromQuery] string? name)
         {
             var products = string.IsNullOrWhiteSpace(name)
@@ -86,6 +98,9 @@ namespace ProductManagerAPI.Controllers
 
 
         [HttpGet("{sku}")]
+        [Produces("application/json")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
         public ActionResult<ProductDto> GetProduct(int sku)
         {
 
@@ -113,6 +128,8 @@ namespace ProductManagerAPI.Controllers
 
 
         [HttpDelete("{sku}")]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
         public ActionResult DeleteProduct(int sku)
         {
             var product = context.Products.FirstOrDefault(p => p.Sku == sku);

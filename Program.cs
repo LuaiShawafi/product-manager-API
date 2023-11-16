@@ -13,16 +13,7 @@ namespace ProductManagerAPI
             // Add services to the container.
             builder.Services.AddDbContext<ApplicationDbContext>(options => options.UseSqlServer(builder.Configuration.GetConnectionString("Default")));
             builder.Services.AddControllers();
-            builder.Services.AddCors(options =>
-            {
-                options.AddDefaultPolicy(builder =>
-                {
-                     builder.WithOrigins("http://localhost:3000")
-                    .AllowAnyHeader()
-                    .AllowAnyMethod();
-
-                });
-            });
+            builder.Services.AddCors();
         
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
@@ -39,12 +30,8 @@ namespace ProductManagerAPI
             app.UseHttpsRedirection();
             app.UseAuthorization();
 
-            app.UseCors(builder =>
-            {
-                builder.AllowAnyOrigin() // Tillåter alla domäner att anropa API:et
-                .AllowAnyHeader() // Tillåter alla headers i anropet
-                .AllowAnyMethod(); // Tillåter alla metoder i anropet
-            });
+            app.UseCors(builder => builder.AllowAnyOrigin().AllowAnyHeader().AllowAnyMethod());
+            
 
             app.MapControllers();
 
