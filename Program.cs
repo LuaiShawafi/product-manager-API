@@ -13,8 +13,8 @@ namespace ProductManagerAPI
             // Add services to the container.
             builder.Services.AddDbContext<ApplicationDbContext>(options => options.UseSqlServer(builder.Configuration.GetConnectionString("Default")));
             builder.Services.AddControllers();
-            builder.Services.AddCors();
-        
+            builder.Services.AddCors(); // You can configure CORS in services if needed
+
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
 
@@ -27,15 +27,15 @@ namespace ProductManagerAPI
                 app.UseDeveloperExceptionPage();
             }
 
+            app.UseCors(builder => builder.AllowAnyOrigin().AllowAnyHeader().AllowAnyMethod());
+
             app.UseHttpsRedirection();
             app.UseAuthorization();
-
-            app.UseCors(builder => builder.AllowAnyOrigin().AllowAnyHeader().AllowAnyMethod());
-            
 
             app.MapControllers();
 
             app.Run();
         }
+
     }
 }

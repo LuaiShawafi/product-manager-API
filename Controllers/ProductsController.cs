@@ -46,18 +46,31 @@ namespace ProductManagerAPI.Controllers
 
             };
 
-            return Created("", productDto);
+            return CreatedAtAction(nameof(GetProducts), new { id = product.Id }, productDto);
         }
 
-        [HttpGet()]
-        [Produces("application/json")]
+        [HttpGet] // Endpoint för att hämta alla produkter 
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public IEnumerable<ProductDto> GetProducts()
+        public ActionResult<IEnumerable<Product>> GetProducts([FromQuery] string? name) // Returnerar en lista med alla produkter i databasen i JSON-format
         {
-            var products = context.Products.ToList();
+            IEnumerable<Product> products; // Skapar en lista med produkter som ska användas för att skicka tillbaka till klienten 
 
-            var productsDto = products.Select(p => new ProductDto
+            if (string.IsNullOrEmpty(name)) // Kollar om name är null eller tom sträng och hämtar alla produkter om det är sant 
+            {
+                products = context.Products.ToList(); // Hämtar alla produkter från databasen 
+            }
+            else
+            {
+                products = context.Products.Where(p => p.Name == name).ToList(); // Hämtar alla produkter med ett specifikt namn från databasen 
+            }
+
+            if (!products.Any()) // Kollar så att det finns produkter i databasen
+            {
+                return NotFound(); // Returnerar 404 Ej hittad med ett meddelande
+            }
+
+            IEnumerable<ProductDto> productDto = products.Select(p => new ProductDto // Skapar en ny instans av ProductDto som ska användas för att skicka tillbaka till klienten
             {
                 Id = p.Id,
                 Name = p.Name,
@@ -67,33 +80,7 @@ namespace ProductManagerAPI.Controllers
                 Price = p.Price
             });
 
-            return productsDto;
-        }
-
-        [HttpGet("{name}")]
-        [Produces("application/json")]
-        [ProducesResponseType(StatusCodes.Status200OK)]
-        [ProducesResponseType (StatusCodes.Status404NotFound)]
-
-        public IEnumerable<ProductDto> GetProductsBySearch([FromQuery] string? name)
-        {
-            var products = string.IsNullOrWhiteSpace(name)
-                ? context.Products.ToList()
-                : context.Products.Where(p => p.Name.Contains(name)).ToList();
-
-
-            var productsDto = products.Select(product => new ProductDto
-            {
-                Id = product.Id,
-                Name = product.Name,
-                Sku = product.Sku,
-                Description = product.Description,
-                ImageURL = product.ImageURL,
-                Price = product.Price
-            }).ToList();
-
-            return productsDto;
-
+            return Ok(productDto); // Returnerar 200 OK med en samling av produkter i JSON-format
         }
 
 
